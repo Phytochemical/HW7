@@ -8,8 +8,14 @@ namespace HW7
 {
     class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
+            // UserInput myUserInput = new UserInput();
+            // myUserInput.userMenuInput();
+
+            InventoryTracker myInventoryTracker = new InventoryTracker();
+            // InventoryTracker myInventoryTracker = new InventoryTracker(0);
+            myInventoryTracker.Start();
         }
     }
 }
