@@ -8,8 +8,10 @@ namespace HW7
 {
     class InventoryTracker
     {
-        public int indexToDeleteUserPrompt;
-        // public int maxNumItem;
+        public int indexUserPrompt;
+        public int indexToDelete;
+        public bool isValueEmpty;
+        public bool isIndexEmpty;
 
         UserInput myUserInput = new UserInput();
 
@@ -18,6 +20,8 @@ namespace HW7
 
         public void Start()
         {
+            // set array size based on user input
+            UserIndexInput();
             UserMenuInput();
         }
 
@@ -27,9 +31,6 @@ namespace HW7
             inventoryTrackerArray = new string[maxNumItem];
         }
 
-        /// <summary>
-        /// executes until user format is correct
-        /// </summary>
         public void CreateArrayInventory()
         {
             bool isMaxIndexValid = false;
@@ -39,12 +40,10 @@ namespace HW7
                 isMaxIndexValid = IsValid();
             }
             while (isMaxIndexValid == false);
+
+            DisplayArray();
         }
 
-        /// <summary>
-        /// returns true if user input is correct format
-        /// </summary>
-        /// <returns></returns>
         public bool IsValid()
         {
             int maxIndex;
@@ -60,7 +59,8 @@ namespace HW7
                 maxIndex = Int32.Parse(strMaxIndex);
 
                 // returns true if the output is numeric try/catch internally without implementing exceptions
-                if (maxIndex < 9 || maxIndex > 101)
+                if (maxIndex < 3)
+                // if (maxIndex < 10 || maxIndex > 101)
                 {
                     Console.Out.WriteLine("Invalid numeric value. Please use number 10 to 100");
                     Console.Out.WriteLine("isNumeric {0}", isNumeric);
@@ -71,9 +71,8 @@ namespace HW7
                 else
                 {
                     // set array size from user input
-                    // int[] inputInventory = new int[maxIndex];
                     inventoryTrackerArray = new string[maxIndex];
-                    Console.Out.WriteLine("The list size is array size [{0}]", maxIndex);
+                    Console.Out.WriteLine("The list size [{0}]", maxIndex);
                 }
             }
             else
@@ -85,24 +84,36 @@ namespace HW7
             return isNumeric;
         }
 
-        public void UserMenuInput()
+        public int UserPrompt()
         {
             int userInputFromMenu;
 
+            myUserInput.MenuDisplay();
+            userInputFromMenu = myUserInput.userMenuInput("Enter option number ");
+
+            return userInputFromMenu;
+        }
+
+        public void UserIndexInput()
+        {
             // set array size from user input
             CreateArrayInventory();
+        }
+
+        public void UserMenuInput()
+        {
+            int userInput;
 
             // do while user input isn't to exit
             do
             {
-                myUserInput.MenuDisplay();
-                userInputFromMenu = myUserInput.userMenuInput("Enter option number ");
+                userInput = UserPrompt();
 
-                switch (userInputFromMenu)
+                switch (userInput)
                 {
                     case 1:
                         Console.Out.WriteLine("Add items ");
-                        AddElements();
+                        AddElement();
                         break;
                     case 2:
                         Console.Out.WriteLine("Change items ");
@@ -113,10 +124,10 @@ namespace HW7
                         DisplayArray();
                         Console.Out.WriteLine("\nUserInputRemove");
                         myUserInput.UserInputRemove();
-                        indexToDeleteUserPrompt = myUserInput.indexToDelete;
-                        Console.Out.WriteLine("indexToDeleteUserPrompt " + indexToDeleteUserPrompt);
-                        DeleteElementAt(indexToDeleteUserPrompt);
-                        Console.Out.WriteLine("indexToDeleteUserPrompt " + indexToDeleteUserPrompt);
+                        indexUserPrompt = myUserInput.indexToDelete;
+                        Console.Out.WriteLine("indexUserPrompt " + indexUserPrompt);
+                        DeleteElementAt(indexUserPrompt);
+                        Console.Out.WriteLine("indexUserPrompt " + indexUserPrompt);
                         DisplayArrayIndex();
                         Console.Out.WriteLine("\n");
                         break;
@@ -134,7 +145,7 @@ namespace HW7
                         break;
                 }
             }
-            while (userInputFromMenu != 0);
+            while (userInput != 0);
         }
 
         /// <summary>
@@ -142,25 +153,146 @@ namespace HW7
         /// </summary>
         /// <param name="index"></param>
         /// <returns>bool</returns>
-        public bool CheckIndex(int indexToDeleteUserPrompt)
+        public bool CheckIndex(int indexUserPrompt)
         {
             bool condition = true;
-            Console.Out.WriteLine("indexToDeleteUserPrompt is within bounds " + condition);
-            Console.Out.WriteLine("indexToDeleteUserPrompt  " + indexToDeleteUserPrompt);
-            return (indexToDeleteUserPrompt >= 0) && (indexToDeleteUserPrompt < inventoryTrackerArray.Length);
+
+            return (indexUserPrompt >= 0) && (indexUserPrompt < inventoryTrackerArray.Length);
+        }
+
+        public string ReviseValue()
+        {
+            int revisedIndex;
+            int outOfBounds;
+            string revisedValue;
+            bool isIndexNotOutOfBound;
+
+            Console.Out.Write("\nEnter index to add/change/delete value ");
+            revisedIndex = Int32.Parse(Console.ReadLine());
+            Console.WriteLine("[{0}]", revisedIndex);
+
+            // check indexOutOfBounds
+            // if outOfBounds display error message
+            isIndexNotOutOfBound = (CheckIndex(revisedIndex));
+
+            if (isIndexNotOutOfBound == false)
+            {
+                Console.WriteLine("Enter correct index ");
+                Console.WriteLine(" ");
+
+                outOfBounds = revisedIndex - inventoryTrackerArray.Length;
+
+                Console.WriteLine("Index [{0}] is out of bounds by {1}", revisedIndex, outOfBounds);
+
+                // return to menu
+                UserMenuInput();
+            }
+
+            Console.WriteLine("index [{0}] {1} ", revisedIndex, inventoryTrackerArray[revisedIndex]);
+
+            Console.Out.Write("\nEnter value for [{0}] ", revisedIndex);
+            revisedValue = Console.ReadLine();
+            Console.WriteLine("index [{0}] {1}", revisedIndex, revisedValue);
+            Console.WriteLine(" ");
+
+            return inventoryTrackerArray[revisedIndex] = revisedValue;
+        }
+
+        public bool IsIndexOutOfBound(int indexUserPrompt)
+        {
+            bool isIndexOutOfBound = false;
+            Console.WriteLine("isIndexOutOfBound " + isIndexOutOfBound);
+            Console.Out.WriteLine("indexUserPrompt  " + indexUserPrompt);
+            Console.WriteLine("CheckIndex(indexUserPrompt) {0} ", CheckIndex(indexUserPrompt));
+
+            if (CheckIndex(indexUserPrompt))
+            {
+                Console.WriteLine("Idnex full [{0}] {1}", indexUserPrompt, inventoryTrackerArray[indexUserPrompt]);
+                Console.WriteLine(" ");
+                // move element so no index contains empty element
+                // MoveEmptyElement(indexToDeleteUserPrompt);
+                isIndexOutOfBound = true;
+            }
+
+            Console.WriteLine("isIndexOutOfBound " + isIndexOutOfBound);
+
+            return isIndexOutOfBound;
+        }
+
+        public bool IsValueEmpty(int indexUserPrompt)
+        {
+            int currentIndex;
+            string currentValue;
+            bool isValueEmpty;
+
+            currentIndex = myUserInput.indexToDelete;
+
+            // display current value
+            currentValue = inventoryTrackerArray[currentIndex];
+            // Console.WriteLine("currentValue - {0} ", currentValue);
+            // Console.WriteLine("index [{0}] {1} ", currentIndex, inventoryTrackerArray[currentIndex]);
+
+            // IsNullOrEmpty
+            isValueEmpty = string.IsNullOrEmpty(currentValue);
+
+            if (!isValueEmpty)
+            {
+                Console.WriteLine("Array full. Please delete element");
+            }
+
+            return isValueEmpty;
+        }
+
+        public void AddElement()
+        {
+            bool isEmptyValue;
+
+            // display array 
+            DisplayArray();
+
+            // index to add value
+            myUserInput.UserInputRemove();
+
+            indexUserPrompt = indexToDelete;
+
+            // is index empty
+            isEmptyValue = IsValueEmpty(indexUserPrompt);
+
+            // if index is empty enable add value
+            if (isEmptyValue == true)
+            {
+                AddElementAt();
+            }
+
+            DisplayArray();
         }
 
         // add items
-        // TODO add array check
-        public void AddElements()
+        public void AddElementAt()
         {
-            int index;
+            int currentIndex;
+            string currentValue;
+            bool isIndexEmpty;
 
-            // iterate and add elements from userInput
-            for (index = 0; index < inventoryTrackerArray.Length; index++)
+            // check if index is empty
+            isIndexEmpty = IsValueEmpty(indexUserPrompt);
+
+            if (isIndexEmpty)
             {
-                Console.Out.Write("Enter items to be added ");
-                inventoryTrackerArray[index] = Console.ReadLine();
+                // if empty add element
+                currentIndex = myUserInput.indexToDelete;
+
+                // overwrite current empty value
+                Console.Out.Write("\nEnter value ");
+                currentValue = Console.ReadLine();
+                inventoryTrackerArray[currentIndex] = currentValue;
+
+                Console.Out.WriteLine("Item added {0} \nExisting function \nDisplaying list\n", currentValue);
+            }
+            // if full prompt delete
+            else
+            {
+                Console.WriteLine("Array full. Please delete element");
             }
         }
 
@@ -170,30 +302,32 @@ namespace HW7
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public bool DeleteElementAt(int indexToDeleteUserPrompt)
+        public bool DeleteElementAt(int indexUserPrompt)
         {
             // check if the array is empty
-            bool IsArrayEmpty = false;
-            Console.WriteLine("IsArrayEmpty " + IsArrayEmpty);
-            Console.Out.WriteLine("indexToDeleteUserPrompt  " + indexToDeleteUserPrompt);
+            bool isArrayEmpty = false;
+            Console.WriteLine("isArrayEmpty default " + isArrayEmpty);
+            Console.Out.WriteLine("indexUserPrompt  " + indexUserPrompt);
 
             // if index is empty return true
             // don't use else or code returns error
-            if (CheckIndex(indexToDeleteUserPrompt))
+            if (CheckIndex(indexUserPrompt))
             {
-                inventoryTrackerArray[indexToDeleteUserPrompt] = null;
-                Console.WriteLine("Empty element at indexToDeleteUserPrompt [{0}] {1}", indexToDeleteUserPrompt, inventoryTrackerArray[indexToDeleteUserPrompt]);
+                inventoryTrackerArray[indexUserPrompt] = null;
+                Console.WriteLine("Empty element at indexUserPrompt [{0}] {1}", indexUserPrompt, inventoryTrackerArray[indexUserPrompt]);
                 Console.WriteLine(" ");
                 // move element so no index contains empty element
-                MoveEmptyElement(indexToDeleteUserPrompt);
-                IsArrayEmpty = true;
+                MoveEmptyElement(indexUserPrompt);
+                isArrayEmpty = true;
             }
-            Console.WriteLine("IsArrayEmpty " + IsArrayEmpty);
-            return IsArrayEmpty;
+
+            Console.WriteLine("isArrayEmpty " + isArrayEmpty);
+
+            return isArrayEmpty;
         }
 
         // move index contains empty element
-        public void MoveEmptyElement(int indexToDeleteUserPrompt)
+        public void MoveEmptyElement(int indexUserPrompt)
         {
             int i;
             int counter;
@@ -208,7 +342,7 @@ namespace HW7
             Console.WriteLine("move index by one");
 
             // the element after the indexToDelete need to move by one index
-            for (counter = indexToDeleteUserPrompt + 1; counter < inventoryTrackerArray.Length; counter++)
+            for (counter = indexUserPrompt + 1; counter < inventoryTrackerArray.Length; counter++)
             {
                 Console.WriteLine("counter {0}", counter);
                 // move index containing empty element by one
@@ -225,43 +359,17 @@ namespace HW7
         // change items
         public void ChangeValue()
         {
-            int revisedIndex;
-            string revisedValue;
-
             // list inventory
-            for (int index = 0; index < inventoryTrackerArray.Length; index++)
-            {
-                Console.WriteLine("[{0}] {1} ", index, inventoryTrackerArray[index]);
-            }
+            DisplayArray();
 
-            Console.Out.Write("\nEnter index for value change ");
-            revisedIndex = Int32.Parse(Console.ReadLine());
-            Console.WriteLine("index [{0}] {1} ", revisedIndex, inventoryTrackerArray[revisedIndex]);
+            ReviseValue();
 
-            Console.Out.Write("\nEnter value ");
-            revisedValue = Console.ReadLine();
-            Console.WriteLine("index [{0}] {1}", revisedIndex, revisedValue);
-            Console.WriteLine(" ");
-
-            // add uer input value to index
-            inventoryTrackerArray[revisedIndex] = revisedValue;
-
-            for (int index = 0; index < inventoryTrackerArray.Length; index++)
-            {
-                Console.WriteLine("[{0}] {1} ", index, inventoryTrackerArray[index]);
-            }
+            DisplayArray();
         }
 
         // display items
         public void DisplayArray()
         {
-            foreach (string item in inventoryTrackerArray)
-            {
-                Console.Out.Write(item + " ");
-            }
-
-            Console.Out.WriteLine(" ");
-
             for (int index = 0; index < inventoryTrackerArray.Length; index++)
             {
                 Console.WriteLine("[{0}] {1} ", index, inventoryTrackerArray[index]);

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HW7
 {
-    class UserInput
+    public class UserInput
     {
         // obtain user user input
         // pass string -> return int
@@ -42,11 +42,12 @@ namespace HW7
             Console.Out.WriteLine(" ******************************************* \n");
         }
 
-        public void UserInputRemove()
+        public int UserInputRemove()
         {
-            Console.Write("\nEnter index to be deleted: ");
+            Console.Out.Write("\nEnter index to add/change/delete value ");
             indexToDelete = Int32.Parse(Console.ReadLine());
-            Console.WriteLine("[{0}] ", indexToDelete);
+
+            return indexToDelete;
         }
     }
 }
